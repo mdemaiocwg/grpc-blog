@@ -2,10 +2,12 @@
   <div id="app">
     <section>
       <span class="title-text">Blog gRPC Client</span>
-      <!-- <div class="row justify-content-center mt-4">
-        <input v-model="inputField" v-on:keyup.enter="addTodo" class="mr-1" placeholder="Todo Item">
-        <button @click="addTodo" class="btn btn-primary">Add Todo</button>
-      </div> -->
+      <div class="row justify-content-center mt-4">
+        <input v-model="inputTitle" class="mr-1" placeholder="Blog Title">
+        <input v-model="inputContent" class="mr-1" placeholder="Blog Content">
+        <input v-model="inputAuthor" class="mr-1" placeholder="Blog Author">
+        <button @click="AddBlog" class="btn btn-primary">Add Blog</button>
+      </div>
     </section>
     <section>
       <div class="row">
@@ -13,13 +15,13 @@
           <ul class="list-group justify-content-center">
             <li
               class="row list-group-item border mt-2 col-xs-1"
-              v-for="todo in todos"
-              v-bind:key="todo.id"
+              v-for="blog in blogs"
+              v-bind:key="blog._id"
             >
-              <!-- <div>
-                <span>{{todo.task}}</span>
-                <span @click="deleteTodo(todo)" class="offset-sm-1 col-sm-2 delete text-right">X</span>
-              </div> -->
+              <div>
+                <span>{{blog}}</span>
+                 <span @click="DeleteBlog(blog)" class="offset-sm-1 col-sm-2 delete text-right">X</span>
+              </div>
             </li>
           </ul>
         </div>
@@ -29,8 +31,8 @@
 </template>
 
 <script>
-import { ReadBlogRequest } from "todo_pb";
-import { blogServiceClient } from "blog_grpc_web_pb";
+import { ListBlogRequest, ReadBlogResponse, CreateBlogRequest, CreateBlogResponse, DeleteBlogRequest, Blog } from "../node_modules/blogpb/blog_pb";
+import { BlogServiceClient } from "../node_modules/blogpb/blog_grpc_web_pb";
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap-vue/dist/bootstrap-vue.css";
 
@@ -39,40 +41,65 @@ export default {
   components: {},
   data: function() {
     return {
-      inputField: "",
-      todos: []
+      inputTitle: "",
+      inputAuthor: "",
+      inputContent: "",
+      blogs: []
     };
   },
   created: function() {
     this.client = new BlogServiceClient("http://localhost:8080", null, null);
-    this.getTodos();
+    //this.AddBlog();
+    this.ListBlog();
   },
   methods: {
-    getTodos: function() {
-      let getRequest = new ReadBlogRequest();
-      this.client.ReadBlog(getRequest, {}, (err, response) => {
-        this.blog = response.toObject().ReadBlogResponse;
-        console.log(this.blog);
+    ListBlog: function(id) {
+      let getRequest = new ListBlogRequest();
+      let stream = this.client.listBlog(getRequest, {});//, (err, response) => {
+      //   let resBlogs = response.getBlog();
+      //   const blog = {_Id: resBlogs.getId(), Title: resBlogs.getTitle(), Content: resBlogs.getContent(), AuthorId: resBlogs.getAuthorId()};
+      //   this.blogs.push(blog);
+
+      //   console.log(resBlogs.getId());
+      //   console.log(resBlogs.getTitle());
+      //   console.log(resBlogs.getContent());
+      //   console.log(resBlogs.getAuthorId());
+
+      //   console.log(err);
+      // });
+      this.blogs = [];
+      let blogs = this.blogs;
+      stream.on('data', function(response){
+        let resBlogs = response.getBlog();
+        const blog = {_Id: resBlogs.getId(), Title: resBlogs.getTitle(), Content: resBlogs.getContent(), AuthorId: resBlogs.getAuthorId()};
+        blogs.push(blog);
       });
-    }//,
-  //   addTodo: function() {
-  //     let request = new addTodoParams();
-  //     request.setTask(this.inputField);
-  //     this.client.addTodo(request, {}, () => {
-  //       this.inputField = "";
-  //       this.getTodos();
-  //     });
-  //   },
-  //   deleteTodo: function(todo) {
-  //     let deleteRequest = new deleteTodoParams();
-  //     deleteRequest.setId(todo.id);
-  //     this.client.deleteTodo(deleteRequest, {}, (err, response) => {
-  //       if (response.getMessage() === "success") {
-  //         this.getTodos();
-  //       }
-  //     });
-  //     console.log("todo -> ", todo.id);
-  //   }
+      stream.on('end', function(end) {
+        console.log("END OF STREAM!");
+      });
+    },
+    AddBlog: function() {
+      let request = new CreateBlogRequest();
+      let blog = new Blog();    //{id: "test", AuthorId: "Matt Test", Title: "Matt Test", Content: "Matt Test"}
+      blog.setAuthorId(this.inputAuthor);
+      blog.setTitle(this.inputTitle);
+      blog.setContent(this.inputContent);
+
+      request.setBlog(blog);
+
+      this.client.createBlog(request, {}, (err, response) => {
+        this.ListBlog();
+        console.log(response.getBlog().getId());
+      });
+    },
+    DeleteBlog: function(blog) {
+      let deleteRequest = new DeleteBlogRequest();
+      deleteRequest.setBlogId(blog._Id);
+      this.client.deleteBlog(deleteRequest, {}, (err, response) => {
+          this.ListBlog();
+      });
+      console.log("blog -> ", blog._Id);
+    }
   }
 };
 </script>

@@ -1,4 +1,4 @@
-version: '2.4'
+version: '3.7'
 services:
   envoy:
     build: 
@@ -16,3 +16,15 @@ services:
       - 8081:80
     depends_on: 
     - blog
+  mongodb_container:
+    image: mongo:latest
+    container_name: 'mongodb_container'
+    # environment:
+    #   MONGO_INITDB_ROOT_USERNAME: root
+    #   MONGO_INITDB_ROOT_PASSWORD: rootpassword
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb_data_container:/data/db
+volumes:
+  mongodb_data_container:

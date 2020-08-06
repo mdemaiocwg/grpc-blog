@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"context"
@@ -9,16 +9,16 @@ import (
 	"os/signal"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/credentials"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"github.com/mdemaiocwg/grpc-blog/blog/blogpb"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/status"
 )
 
@@ -199,11 +199,11 @@ func dataToBlogPb(data *blogItem) *blogpb.Blog {
 	}
 }
 
-func main() {
+func ConnectToServer() {
 	// If we crash the go code, we get the file name and line number.
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://localhost:27017"))
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://mongodb_container:27017"))
 	if err != nil {
 		log.Fatalf("Error creating new client for mongodb: %v", err)
 	}
@@ -214,7 +214,7 @@ func main() {
 
 	collection = client.Database("mydb").Collection("blog")
 
-	lis, err := net.Listen("tcp", "0.0.0.0:50051")
+	lis, err := net.Listen("tcp", "0.0.0.0:14586")
 	if err != nil {
 		log.Fatalf("Failed to listen: %v", err)
 	}
@@ -253,5 +253,4 @@ func main() {
 	lis.Close()
 	fmt.Println("Closing MongoDB connection")
 	client.Disconnect(context.TODO())
-
 }
