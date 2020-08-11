@@ -4,10 +4,10 @@
       <span class="title-text">Blog gRPC Client</span>
       <div class="row justify-content-center mt-4">
         <input v-model="inputTitle" class="mr-1" placeholder="Blog Title">
-        <input v-model="inputContent" class="mr-1" placeholder="Blog Content">
         <input v-model="inputAuthor" class="mr-1" placeholder="Blog Author">
         <button @click="AddBlog" class="btn btn-primary">Add Blog</button>
       </div>
+        <textarea v-model="inputContent" class="mr-1" placeholder="Blog Content"></textarea>
     </section>
     <section>
       <div class="row">
@@ -55,18 +55,7 @@ export default {
   methods: {
     ListBlog: function(id) {
       let getRequest = new ListBlogRequest();
-      let stream = this.client.listBlog(getRequest, {});//, (err, response) => {
-      //   let resBlogs = response.getBlog();
-      //   const blog = {_Id: resBlogs.getId(), Title: resBlogs.getTitle(), Content: resBlogs.getContent(), AuthorId: resBlogs.getAuthorId()};
-      //   this.blogs.push(blog);
-
-      //   console.log(resBlogs.getId());
-      //   console.log(resBlogs.getTitle());
-      //   console.log(resBlogs.getContent());
-      //   console.log(resBlogs.getAuthorId());
-
-      //   console.log(err);
-      // });
+      let stream = this.client.listBlog(getRequest, {});
       this.blogs = [];
       let blogs = this.blogs;
       stream.on('data', function(response){
@@ -80,7 +69,7 @@ export default {
     },
     AddBlog: function() {
       let request = new CreateBlogRequest();
-      let blog = new Blog();    //{id: "test", AuthorId: "Matt Test", Title: "Matt Test", Content: "Matt Test"}
+      let blog = new Blog();    
       blog.setAuthorId(this.inputAuthor);
       blog.setTitle(this.inputTitle);
       blog.setContent(this.inputContent);
