@@ -34,7 +34,7 @@
 </template>
 
 <script>
-const isDev = true;
+const isDev = false;
 import {
     ListBlogRequest,
     ReadBlogResponse,
@@ -54,9 +54,6 @@ export default {
     components: {},
     data: function () {
         return {
-            inputTitle: "",
-            inputAuthor: "",
-            inputContent: "",
             blogs: []
         };
     },
@@ -77,7 +74,7 @@ export default {
                     let jsDate = protoTimeStamp.toDate();
                     jsDate = jsDate.toLocaleString();
 
-                    const blog = {
+                    const blog = {  // todo: Can we add an image to this and store in MongoDB?
                         _Id: resBlogs.getId(),
                         Title: resBlogs.getTitle(),
                         Content: resBlogs.getContent(),
@@ -101,22 +98,6 @@ export default {
                     this.blogs.push(blog);
                 }
             }
-        },
-        AddBlog: function () {
-            let request = new CreateBlogRequest();
-            let blog = new Blog();
-            blog.setAuthorId(this.inputAuthor);
-            blog.setTitle(this.inputTitle);
-            blog.setContent(this.inputContent);
-
-            request.setBlog(blog);
-
-            this.client.createBlog(request, {}, (err, response) => {
-                this.ListBlog();
-                this.inputAuthor = "";
-                this.inputTitle = "";
-                this.inputContent = "";
-            });
         },
         DeleteBlog: function (blog) {
             let deleteRequest = new DeleteBlogRequest();
