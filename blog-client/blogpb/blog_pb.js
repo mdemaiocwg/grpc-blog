@@ -12,6 +12,8 @@ var jspb = require('google-protobuf');
 var goog = jspb;
 var global = Function('return this')();
 
+var google_protobuf_timestamp_pb = require('google-protobuf/google/protobuf/timestamp_pb.js');
+goog.object.extend(proto, google_protobuf_timestamp_pb);
 goog.exportSymbol('proto.blog.Blog', null, global);
 goog.exportSymbol('proto.blog.CreateBlogRequest', null, global);
 goog.exportSymbol('proto.blog.CreateBlogResponse', null, global);
@@ -289,7 +291,8 @@ proto.blog.Blog.toObject = function(includeInstance, msg) {
     id: jspb.Message.getFieldWithDefault(msg, 1, ""),
     authorId: jspb.Message.getFieldWithDefault(msg, 2, ""),
     title: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    content: jspb.Message.getFieldWithDefault(msg, 4, "")
+    content: jspb.Message.getFieldWithDefault(msg, 4, ""),
+    createdTime: (f = msg.getCreatedTime()) && google_protobuf_timestamp_pb.Timestamp.toObject(includeInstance, f)
   };
 
   if (includeInstance) {
@@ -341,6 +344,11 @@ proto.blog.Blog.deserializeBinaryFromReader = function(msg, reader) {
     case 4:
       var value = /** @type {string} */ (reader.readString());
       msg.setContent(value);
+      break;
+    case 5:
+      var value = new google_protobuf_timestamp_pb.Timestamp;
+      reader.readMessage(value,google_protobuf_timestamp_pb.Timestamp.deserializeBinaryFromReader);
+      msg.setCreatedTime(value);
       break;
     default:
       reader.skipField();
@@ -397,6 +405,14 @@ proto.blog.Blog.serializeBinaryToWriter = function(message, writer) {
     writer.writeString(
       4,
       f
+    );
+  }
+  f = message.getCreatedTime();
+  if (f != null) {
+    writer.writeMessage(
+      5,
+      f,
+      google_protobuf_timestamp_pb.Timestamp.serializeBinaryToWriter
     );
   }
 };
@@ -471,6 +487,43 @@ proto.blog.Blog.prototype.getContent = function() {
  */
 proto.blog.Blog.prototype.setContent = function(value) {
   return jspb.Message.setProto3StringField(this, 4, value);
+};
+
+
+/**
+ * optional google.protobuf.Timestamp created_time = 5;
+ * @return {?proto.google.protobuf.Timestamp}
+ */
+proto.blog.Blog.prototype.getCreatedTime = function() {
+  return /** @type{?proto.google.protobuf.Timestamp} */ (
+    jspb.Message.getWrapperField(this, google_protobuf_timestamp_pb.Timestamp, 5));
+};
+
+
+/**
+ * @param {?proto.google.protobuf.Timestamp|undefined} value
+ * @return {!proto.blog.Blog} returns this
+*/
+proto.blog.Blog.prototype.setCreatedTime = function(value) {
+  return jspb.Message.setWrapperField(this, 5, value);
+};
+
+
+/**
+ * Clears the message field making it undefined.
+ * @return {!proto.blog.Blog} returns this
+ */
+proto.blog.Blog.prototype.clearCreatedTime = function() {
+  return this.setCreatedTime(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.blog.Blog.prototype.hasCreatedTime = function() {
+  return jspb.Message.getField(this, 5) != null;
 };
 
 

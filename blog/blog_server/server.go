@@ -7,6 +7,7 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -18,6 +19,7 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
+	"github.com/golang/protobuf/ptypes"
 	"github.com/mdemaiocwg/grpc-blog/blog/blogpb"
 	"google.golang.org/grpc/status"
 )
@@ -28,19 +30,30 @@ type server struct {
 }
 
 type blogItem struct {
-	ID       primitive.ObjectID `bson:"_id,omitempty"`
-	AuthorID string             `bson:"author_id"`
-	Content  string             `bson:"content"`
-	Title    string             `bson:"title"`
+	ID          primitive.ObjectID `bson:"_id,omitempty"`
+	AuthorID    string             `bson:"author_id"`
+	Content     string             `bson:"content"`
+	Title       string             `bson:"title"`
+	CreatedTime time.Time          `bson:"created_time"`
 }
 
 func (*server) CreateBlog(ctx context.Context, req *blogpb.CreateBlogRequest) (*blogpb.CreateBlogResponse, error) {
 	blog := req.GetBlog()
+	blog.CreatedTime = ptypes.TimestampNow()
+
+	tempCreatedTime, err := ptypes.Timestamp(blog.GetCreatedTime())
+	if err != nil {
+		return nil, status.Errorf(
+			codes.Internal,
+			fmt.Sprintf("Cannot convert time-stamp: %v", err),
+		)
+	}
 
 	data := blogItem{
-		AuthorID: blog.GetAuthorId(),
-		Title:    blog.GetTitle(),
-		Content:  blog.GetContent(),
+		AuthorID:    blog.GetAuthorId(),
+		Title:       blog.GetTitle(),
+		Content:     blog.GetContent(),
+		CreatedTime: tempCreatedTime,
 	}
 
 	res, err := collection.InsertOne(context.Background(), data)
@@ -61,10 +74,11 @@ func (*server) CreateBlog(ctx context.Context, req *blogpb.CreateBlogRequest) (*
 
 	return &blogpb.CreateBlogResponse{
 		Blog: &blogpb.Blog{
-			Id:       oid.Hex(),
-			AuthorId: blog.GetAuthorId(),
-			Title:    blog.GetTitle(),
-			Content:  blog.GetContent(),
+			Id:          oid.Hex(),
+			AuthorId:    blog.GetAuthorId(),
+			Title:       blog.GetTitle(),
+			Content:     blog.GetContent(),
+			CreatedTime: blog.GetCreatedTime(),
 		},
 	}, nil
 }
@@ -191,11 +205,16 @@ func (*server) ListBlog(req *blogpb.ListBlogRequest, stream blogpb.BlogService_L
 }
 
 func dataToBlogPb(data *blogItem) *blogpb.Blog {
+	tempCreatedTime, err := ptypes.TimestampProto(data.CreatedTime)
+	if err != nil {
+		log.Fatalf("Error converting to proto timestamp: %v", err)
+	}
 	return &blogpb.Blog{
-		Id:       data.ID.Hex(),
-		AuthorId: data.AuthorID,
-		Content:  data.Content,
-		Title:    data.Title,
+		Id:          data.ID.Hex(),
+		AuthorId:    data.AuthorID,
+		Content:     data.Content,
+		Title:       data.Title,
+		CreatedTime: tempCreatedTime,
 	}
 }
 
