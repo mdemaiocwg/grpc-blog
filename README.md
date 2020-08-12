@@ -11,4 +11,6 @@ I essentially built upon what i learned in this course and utilizing other resou
 [Docker](https://www.docker.com/) is required in order to run this application.<br/>
 To build the application run: `docker-compose build`<br/>
 To run the application run: `docker-compose up` <br/>
-To view the application in the web, visit [localhost](http://localhost:8081)
+To view the application in the web, visit [localhost](http://localhost:8081)<br/><br/>
+Running just the frontend portion can be done by CDing into blog-client and running: `yarn serve`<br/>
+Running just the backend portion can be done by CDing into the root dir and running: `go run server.go`
