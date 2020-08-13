@@ -47,6 +47,10 @@ export default {
             request.setBlog(blog);
 
             client.createBlog(request, {}, (err, response) => {
+                if(err){
+                    alert("Error adding blog: " + err["message"]);
+                    return;
+                }
                 this.ListBlog();
                 this.inputAuthor = "";
                 this.inputTitle = "";

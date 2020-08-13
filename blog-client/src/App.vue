@@ -68,6 +68,9 @@ export default {
                 let stream = this.client.listBlog(getRequest, {});
                 this.blogs = [];
                 let blogs = this.blogs;
+                stream.on('error', function(err){
+                    alert("Error loading blogs: " + err["message"]);
+                });
                 stream.on('data', function (response) {
                     let resBlogs = response.getBlog();
                     const protoTimeStamp = resBlogs.getCreatedTime();
@@ -87,7 +90,7 @@ export default {
                     console.log("END OF STREAM!");
                 });
             } else {
-                for (var i = 0; i < 12; i++) {
+                for (var i = 0; i < 12; i++) {  // Dev mode, append 12 fake records to see layout.
                     const blog = {
                         _Id: "TESTID",
                         Title: "Matt Test Title",
@@ -101,8 +104,12 @@ export default {
         },
         DeleteBlog: function (blog) {
             let deleteRequest = new DeleteBlogRequest();
-            deleteRequest.setBlogId(blog._Id);
+            deleteRequest.setBlogId("blog._Id");
             this.client.deleteBlog(deleteRequest, {}, (err, response) => {
+                if(err){
+                    alert("Failed to delete record: " + err["message"]);
+                    return;
+                }
                 this.ListBlog();
             });
             console.log("blog -> ", blog._Id);
