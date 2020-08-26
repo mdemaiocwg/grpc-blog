@@ -104,7 +104,7 @@ export default {
         },
         DeleteBlog: function (blog) {
             let deleteRequest = new DeleteBlogRequest();
-            deleteRequest.setBlogId("blog._Id");
+            deleteRequest.setBlogId(blog._Id);
             this.client.deleteBlog(deleteRequest, {}, (err, response) => {
                 if(err){
                     alert("Failed to delete record: " + err["message"]);
