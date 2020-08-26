@@ -467,5 +467,5 @@ proto.blog.BlogServicePromiseClient.prototype.listBlog =
 };
 
 
-module.exports = proto.blog;
+export default proto.blog;
 
