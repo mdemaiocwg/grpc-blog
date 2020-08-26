@@ -34,7 +34,7 @@
 </template>
 
 <script>
-const isDev = false;
+const isDev = true;
 import {
     ListBlogRequest,
     ReadBlogResponse,
