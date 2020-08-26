@@ -10,7 +10,7 @@
   "dependencies": {
     "bootstrap-vue": "^2.0.0-rc.11",
     "google-protobuf": "^3.6.1",
-    "grpc-web": "^1.0.0",
+    "grpc-web": "^1.0.7",
     "vue": "^2.5.17"
   },
   "devDependencies": {
